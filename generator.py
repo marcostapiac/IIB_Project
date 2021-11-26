@@ -58,7 +58,7 @@ def plot_qq(x1, y1, x2=None, quantiles=None, interpolation='nearest', ax=None, r
                 ax.axhline(point, **rug_y_params)
 
     # Draw the q-q plot and compare with y = x
-    ax.scatter(x_quantiles1, y_quantiles1, c="black", label="Q-Q plot",  **kwargs)
+    ax.scatter(x_quantiles1, y_quantiles1, c="black", label="Q-Q plot", **kwargs)
     if x2 is not None:
         ax.scatter(x_quantiles2, y_quantiles2, c='red', label="Q-Q plot", **kwargs)
     lims = [
@@ -81,7 +81,7 @@ def powerI(element, index):
     return val
 
 
-def powerL(elements: list, index):
+def powerL(elements, index):
     return np.array([elements[i] ** index for i in range(len(elements))])
 
 
@@ -105,17 +105,6 @@ def plot_histogram1(histogram_sequence1, label):
     plt.legend()
     plt.title(label)
     plt.savefig("NGHistogramLargeVal.png")
-    plt.show()
-
-
-def plot_histogram2(histogram_sequence, nu, mu, gamma, beta):
-    binvals, bins, _ = plt.hist(histogram_sequence, 100, density=False)
-    a1 = min(bins)
-    a2 = max(bins)
-    NG_dist = NGDistribution()
-    pdf = NG_dist.pdf(np.linspace(a1, a2, len(bins)))
-    # Do not SCALE! -> distorts the PDF
-    # plt.plot(np.linspace(a1, a2, len(bins)), pdf)
     plt.show()
 
 
