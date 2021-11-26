@@ -104,6 +104,7 @@ def plot_histogram1(histogram_sequence1, label):
     plt.ylabel("PDF")
     plt.legend()
     plt.title(label)
+    plt.savefig("NGHistogramLargeVal.png")
     plt.show()
 
 
@@ -902,7 +903,6 @@ def CLT2(mu=0, beta=0, nu=2, gamma=2, mu_W=0, std_W=1, T_horizon=1, N_Processes=
         plot_qq(error_process_1, np.random.normal(0, 1, size=error_process_1.shape[0]), ax=ax,
                 label="NG Residuals QQ Plot with $\Gamma_{i} < $" + str(round(epoch_cutoff, 3)))
     print(stats.kstest(error_process_1, 'norm').pvalue)"""
-    plt.savefig("NGHistogramLargeVal.png")
     plt.show()
     return stats.kstest(error_process_1, 'norm').pvalue
 
