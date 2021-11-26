@@ -58,9 +58,9 @@ def plot_qq(x1, y1, x2=None, quantiles=None, interpolation='nearest', ax=None, r
                 ax.axhline(point, **rug_y_params)
 
     # Draw the q-q plot and compare with y = x
-    ax.scatter(x_quantiles1, y_quantiles1, c="black", **kwargs, label="Q-Q plot")
+    ax.scatter(x_quantiles1, y_quantiles1, c="black", label="Q-Q plot",  **kwargs)
     if x2 is not None:
-        ax.scatter(x_quantiles2, y_quantiles2, c='red', **kwargs, label="Q-Q plot")
+        ax.scatter(x_quantiles2, y_quantiles2, c='red', label="Q-Q plot", **kwargs)
     lims = [
         np.min([ax.get_xlim(), ax.get_ylim()]),  # min of both axes
         np.max([ax.get_xlim(), ax.get_ylim()]),  # max of both axes
