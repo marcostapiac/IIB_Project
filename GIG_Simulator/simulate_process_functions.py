@@ -189,3 +189,4 @@ def GIG_jumps(delta=2, gamma_param=0.2, lambd=-0.1, N_Jumps=10000, T_horizon=1, 
             else:
                 jumps = np.append(jumps, p1.sum())
     return jumps
+

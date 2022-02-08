@@ -2,11 +2,10 @@ from simulate_process_functions import *
 from rvs_generator_functions import *
 from plotting_functions import plot_qq, plot_histogram_GIG
 from matplotlib import pyplot as plt
-from scipy.stats import ks_2samp, kstest
-from plotting_functions import plot_histogram_normal
+from scipy.stats import ks_2samp
 
-N_Jumps = 100000
-lambd = 0.1
+N_Jumps = 50000
+lambd = -1.8
 delta = 2
 gamma_param = 0.1
 
