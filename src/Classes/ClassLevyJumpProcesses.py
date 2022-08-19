@@ -4,7 +4,6 @@ from scipy.special import gamma as gammaf
 from scipy.special import gammaincc as uppergammaf
 from scipy.stats import gamma as gammaDist
 from scipy.special import hankel1, hankel2, gammainc, gammaincc, gammaincinv
-from tqdm import tqdm
 
 class LevyJumpProcess:
     """ Class to simulate Lévy processes based on rejection sampling """
