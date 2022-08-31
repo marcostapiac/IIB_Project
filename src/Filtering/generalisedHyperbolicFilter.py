@@ -5,12 +5,12 @@ import numpy as np
 from tqdm import tqdm
 from ClassKalmanFilter import KalmanFilter
 from data_processing import obtainData
-from ClassLevyJumpProcesses import TemperedStableSubordinator
+from ClassLevyJumpProcesses import GIGSubordinator
 from ClassLangevinModel import LangevinModel
 from ClassRaoBlackwellisedParticleFilter import RaoBlackwellisedFilter
 
 
-def run_filter(kappa, gamma, delta, simulate_data=True):
+def run_filter(delta, gamma, lambd, simulate_data=True):
     P = 2
     M = 1
     Theta = -1.0
@@ -40,7 +40,7 @@ def run_filter(kappa, gamma, delta, simulate_data=True):
         skewness_states = [normRV[2, 0]]
         for i in tqdm(range(1, len(time_ax))):
             t1, t2 = time_ax[i - 1], time_ax[i]
-            tsSubordinator = TemperedStableSubordinator(t1, t2, nEpochs, nEpochs, subordinator_truncation, kappa, delta, gamma)
+            tsSubordinator = GIGSubordinator(t1, t2, nEpochs, nEpochs, subordinator_truncation, delta, gamma, lambd)
             mc, Sc = lModel.filter_sampling(tsSubordinator)
             lModel.update_state_covariance_matrix(tsSubordinator.get_covariance_constant(), t2 - t1, Sc)
             state = lModel.simulate_state(state, t2 - t1, mc)
@@ -65,13 +65,13 @@ def run_filter(kappa, gamma, delta, simulate_data=True):
     a_predicts = [0] * Np
     C_predicts = [0] * Np
     for i in tqdm(range(1, numObs)):
-        tsSubordinator = TemperedStableSubordinator(time_ax[i-1], time_ax[i], nEpochs, nEpochs, subordinator_truncation, kappa, delta, gamma)
+        tsSubordinator = GIGSubordinator(time_ax[i-1], time_ax[i], nEpochs, nEpochs, subordinator_truncation, delta, gamma, lambd)
         a_predicts, C_predicts = rbf.filter(i, time_ax[i]-time_ax[i-1], tsSubordinator, Observations[i], lModel,
                                             a_predicts, C_predicts)
 
-    plot_title = "Normal Tempered Stable Particle Filtering, $\\theta, N_{particles}, k_{V}, \kappa, \delta, \gamma, " \
-                 "\sigma_{W}^{2}, k_{W} = " + str(Theta) + ", " + str(Np) + ", " + str(k_V) + ", " + str(kappa) + ", " + str(
-            delta) + ", " + str(gamma) + ", " + str(var_W) + ", " + str(k_W) + "$"
+    plot_title = "Generalised Hyperbolic Particle Filtering, $\\theta, N_{particles}, k_{V}, \\delta, \\gamma, " \
+                 "\\lambda, \\sigma_{W}^{2}, k_{W} = " + str(Theta) + ", " + str(Np) + ", " + str(k_V) + ", " + str(delta) + ", " + str(
+            gamma) + ", " + str(lambd) + ", " + str(var_W) + ", " + str(k_W) + "$"
     rbf.plotFilterResults(time_ax, position_states, rbf.get_position_estimates(), rbf.get_position_stds(),
                           velocity_states,
                           rbf.get_velocity_estimates(), rbf.get_velocity_stds(), skewness_states,
@@ -79,4 +79,4 @@ def run_filter(kappa, gamma, delta, simulate_data=True):
                           rbf.get_skewness_stds(), plot_title, std_width=1.96)
 
 
-run_filter(0.5, 1.0, 1.26)
+run_filter(1.0, 1.0, 0.4)

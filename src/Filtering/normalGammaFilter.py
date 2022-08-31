@@ -1,3 +1,6 @@
+import sys
+
+sys.path.extend(['../Classes', '../Plotter', '../DataProcessing'])
 import numpy as np
 from tqdm import tqdm
 from ClassKalmanFilter import KalmanFilter
