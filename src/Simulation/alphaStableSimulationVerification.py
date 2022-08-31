@@ -1,7 +1,6 @@
 import sys
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-from scipy.stats import gamma as gammaDist
 
 sys.path.extend(['../Classes', '../Plotter'])
 from ClassLevyJumpProcesses import AlphaStableSubordinator
@@ -9,7 +8,7 @@ from ClassPlotter import QQPlotter
 import numpy as np
 
 
-def verify_simulation(t1=0.0, t2=5.0, num_obs=100, num_epochs=1000, subordinator_truncation=0.0, alpha=0.8,  gamma=2.0, nProcesses=10000):
+def verify_simulation(t1=0.0, t2=5.0, num_obs=100, num_epochs=1000, subordinator_truncation=0.0, alpha=0.9,  gamma=2.0, nProcesses=10000):
     sub = AlphaStableSubordinator(t1, t2, num_obs, num_epochs, subordinator_truncation, alpha=alpha, gamma=gamma)
     vals = []
     for _ in tqdm(range(nProcesses)):
