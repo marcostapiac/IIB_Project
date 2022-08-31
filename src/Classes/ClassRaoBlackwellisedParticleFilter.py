@@ -2,7 +2,6 @@ import numpy as np
 from scipy.special import gamma as gammaf
 import copy
 from ClassLangevinModel import LangevinModel
-from ClassLevyJumpProcesses import AlphaSubordinator
 from ClassPlotter import TimeSeriesPlotter
 import matplotlib.pyplot as plt
 
@@ -184,7 +183,7 @@ class RaoBlackwellisedFilter:
         plotter.plot()
         ax[0].fill_between(time_ax, np.array(position_estimates) - std_width * np.array(position_stds),
                            np.array(position_estimates) + std_width * np.array(position_stds),
-                           label="$\pm 2$ standard deviations")
+                           label="$\pm 2$ standard deviations", color="#DEDEDE")
 
         plotter = TimeSeriesPlotter(time_ax, velocity_states, plotlabel="True Signal", ax=ax[1])
         plotter.plot()
@@ -192,7 +191,7 @@ class RaoBlackwellisedFilter:
                                     plotlabel="Estimated Signal", ax=ax[1])
         plotter.plot()
         ax[1].fill_between(time_ax, np.array(velocity_estimates) - std_width * np.array(velocity_stds),
-                           np.array(velocity_estimates) + std_width * np.array(velocity_stds))
+                           np.array(velocity_estimates) + std_width * np.array(velocity_stds), color="#DEDEDE")
 
         plotter = TimeSeriesPlotter(time_ax, skewness_states,
                                     plotlabel="True Signal", ax=ax[2])
@@ -201,5 +200,5 @@ class RaoBlackwellisedFilter:
                                     ylabel="Process Skewness, $\mu_{W}$", plotlabel="Estimated Signal", ax=ax[2])
         plotter.plot()
         ax[2].fill_between(time_ax, np.array(skewness_estimates) - std_width * np.array(skewness_stds),
-                           np.array(skewness_estimates) + std_width * np.array(skewness_stds))
+                           np.array(skewness_estimates) + std_width * np.array(skewness_stds), color="#DEDEDE")
         plt.show()

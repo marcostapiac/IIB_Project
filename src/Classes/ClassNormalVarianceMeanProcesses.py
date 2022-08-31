@@ -18,16 +18,22 @@ class NormalVarianceMeanProcess:
     def get_var_W(self):
         return self.__var_W
 
-    def generate_jumps(self, time):
+    def generate_jumps(self):
         self.__subordinator.generate_jumps(self.__subordinator.generate_epochs())
         sub_jumps = self.__subordinator.get_jump_sizes()
-        return np.random.normal(self.__drift + self.__mean * sub_jumps, np.sqrt(self.__var_W*sub_jumps), size=sub_jumps.shape[0])
+        return self.__drift + self.__mean * sub_jumps + np.sqrt(self.__var_W * sub_jumps) * np.random.randn(sub_jumps.shape[0])
+
+    def generate_small_jumps(self):
+        self.__subordinator.generate_jumps(self.__subordinator.generate_epochs()) # THIS FUNCTION CURRENTLY DOES NOT KEEP ONLY LARGER JUMPS
+        sjs = self.__subordinator.get_jump_sizes()
+        sub_jumps = sjs[sjs <= self.__subordinator.get_truncation()]
+        return self.__drift + self.__mean * sub_jumps + np.sqrt(self.__var_W * sub_jumps) * np.random.randn(sub_jumps.shape[0])
 
 
     def marginal_samples(self, numSamples, tHorizon):
         subSamples = self.__subordinator.marginal_samples(numSamples, tHorizon)
-        return self.__drift*tHorizon + self.__mean * subSamples + np.sqrt(
-            self.__var_W * subSamples) * np.random.randn(numSamples)
+        return self.__drift * tHorizon + self.__mean * subSamples + np.sqrt(
+            self.__var_W * subSamples) * np.random.randn(subSamples.shape[0])
 
     def generate_path(self):
         time_ax = np.linspace(self.__subordinator.get_minT(), self.__subordinator.get_maxT(),

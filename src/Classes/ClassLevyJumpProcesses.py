@@ -5,6 +5,7 @@ from scipy.special import gammaincc as uppergammaf
 from scipy.stats import gamma as gammaDist
 from scipy.special import hankel1, hankel2, gammainc, gammaincc, gammaincinv
 
+
 class LevyJumpProcess:
     """ Class to simulate Lévy processes based on rejection sampling """
 
@@ -47,8 +48,11 @@ class LevyJumpProcess:
     def get_covariance_constant(self):
         return self.__covariance_constant
 
-    def set_jump_sizes(self, jumps):
-        self.__jumps = jumps
+    def set_jump_sizes(self, new_jumps):
+        self.__jumps = new_jumps
+
+    def set_truncation(self, new_subordinator_truncation):
+        self.__truncation = new_subordinator_truncation
 
     def generate_epochs(self):
         delta_t = self.__tMax - self.__tMin
@@ -139,11 +143,11 @@ class TemperedStableSubordinator(LevyJumpProcess):
         self.__kappa = kappa
         self.__delta = delta
         self.__gamma = gamma
-        self.__covariance_constant = 4 * delta * kappa * (gamma ** ((2 - kappa) / kappa)) * (
-                gammaf(2 - kappa) / gammaf(1 - kappa)) * uppergammaf(
-            2 - kappa,
-            0.5 * subordinator_truncation * gamma ** (
-                    1 / kappa))
+        # self.__covariance_constant = 4 * delta * kappa * (gamma ** ((kappa - 2) / kappa)) * (1.0 / gammaf(1 - kappa)) * uppergammaf(2 - kappa,0.5 * subordinator_truncation * gamma ** (1 / kappa))
+        # BELOW ONLY VALID FOR PARTIAL GAUSSIAN APPROXIMATION CASE 3
+        self.__covariance_constant = 2 * delta * kappa * (gamma ** ((kappa - 1) / kappa)) * (
+                    1.0 / gammaf(1 - kappa)) * uppergammaf(1 - kappa,
+                                                           0.5 * subordinator_truncation * gamma ** (1 / kappa))
 
     def get_kappa(self):
         return self.__kappa
@@ -178,7 +182,16 @@ class GIGSubordinator(LevyJumpProcess):
         self.__delta = delta
         self.__lambd = lambd
         self.__gamma = gamma
-        self.__covariance_constant = 0.0  # TODO
+        # For sufficiently small truncation, this lower bound is accurate for CASE 3
+        if np.abs(lambd) < 0.5:
+            self.__covariance_constant = delta * np.sqrt((2 * subordinator_truncation) / np.pi)
+        else:
+            a = np.pi * np.power(2.0, (1.0 - 2.0 * np.abs(lambd)))
+            b = gammaf(np.abs(lambd)) ** 2
+            c = 1 / (1 - 2 * np.abs(lambd))
+            z1 = (a / b) ** c
+            H0 = z1 * self.__hankel_squared(np.abs(lambd), z1)
+            self.__covariance_constant = 2 * delta * np.sqrt((2 * subordinator_truncation) / np.pi) / (np.pi * H0)
 
     def get_lambd(self):
         return self.__lambd
@@ -191,12 +204,15 @@ class GIGSubordinator(LevyJumpProcess):
 
     def get_covariance_constant(self):
         return self.__covariance_constant
+
     @staticmethod
     def __psi(x, alpha, lambd):
         return -alpha * (np.cosh(x) - 1) - lambd * (np.exp(x) - x - 1)
+
     @staticmethod
     def __dpsi(x, alpha, lambd):
         return -alpha * np.sinh(x) - lambd * (np.exp(x) - 1)
+
     @staticmethod
     def __g(x, sd, td, f1, f2):
         a = 0
@@ -209,6 +225,7 @@ class GIGSubordinator(LevyJumpProcess):
         elif (x < -sd):
             c = f2
         return a + b + c
+
     @staticmethod
     def __unnorm_gammaincc(lam, z):
         return gammaf(lam) * gammaincc(lam, z)
@@ -241,7 +258,7 @@ class GIGSubordinator(LevyJumpProcess):
         # Generate gamma process
         beta = 0.5 * gamma_param ** 2
         C = z1 / (np.pi * np.pi * np.absolute(lambd) * H0)  # Shape parameter of process at t = 1
-        jump_sizes = self.__generate_gamma_jumps(C, beta,)
+        jump_sizes = self.__generate_gamma_jumps(C, beta, )
 
         """ Rejection sampling from Algorithm 6 """
         const1 = (z1 ** 2) * jump_sizes / (2 * delta ** 2)
@@ -342,7 +359,7 @@ class GIGSubordinator(LevyJumpProcess):
 
         """ Which parameter is scaled by TIME ??? """
 
-        a = self.__gamma**2
+        a = self.__gamma ** 2
         b = self.__delta ** 2
         lambd = self.__lambd
         omega = np.sqrt(a * b)

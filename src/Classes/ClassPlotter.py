@@ -2,6 +2,7 @@ import numbers
 
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.stats import norm
 
 
 class Plotter:
@@ -15,7 +16,7 @@ class Plotter:
         self.__ylabel = ylabel
         self.__plotlabel = plotlabel
         self.__plottitle = plottitle
-        if ax:
+        if ax and fig:
             self.fig, self.ax = fig, ax
         else:
             self.fig, self.ax = plt.subplots()
@@ -49,8 +50,10 @@ class Plotter:
 
 
 class HistogramPlotter(Plotter):
-    def __init__(self, x1samples, y1samples=None,xlabel="",ylabel="", plotlabel="", plottitle="", bins= 100, pdf_values = None, ax=None):
-        super().__init__(x1samples, y1samples, xlabel=xlabel, ylabel=ylabel, plotlabel=plotlabel, plottitle=plottitle, ax=ax)
+    def __init__(self, x1samples, y1samples=None, xlabel="", ylabel="", plotlabel="", plottitle="", bins=200,
+                 pdf_values=None, fig=None, ax=None):
+        super().__init__(x1samples, y1samples, xlabel=xlabel, ylabel=ylabel, plotlabel=plotlabel, plottitle=plottitle,
+                         fig=fig, ax=ax)
         self.__pdf_vals = pdf_values
         self.__bins = bins
 
@@ -59,6 +62,7 @@ class HistogramPlotter(Plotter):
 
     def plot(self):
         """ Function to compare generated process with density at t = T """
+        self.fig.set_size_inches(14, 9.5)
         x1 = self.get_x1()
         self.ax.set_xlabel(self.get_xlabel())
         self.ax.set_ylabel(self.get_ylabel())
@@ -67,11 +71,24 @@ class HistogramPlotter(Plotter):
         self.ax.plot(np.linspace(min(x1), max(x1), len(x1)), self.__pdf_vals, label=self.get_plotlabel())
         self.ax.legend()
 
+    def plot_normal(self):
+        """ Function to compare generated process with density at t = T """
+        self.fig.set_size_inches(14, 9.5)
+        x1 = self.get_x1()
+        self.ax.set_xlabel(self.get_xlabel())
+        self.ax.set_ylabel(self.get_ylabel())
+        self.ax.set_title(self.get_plottitle())
+        binvals, _, _ = plt.hist(x1, self.__bins, density=True, label="Histogram of Process at $t = T_{horizon}$")
+        xvals = np.linspace(norm.ppf(0.00001), norm.ppf(0.99999), x1.shape[0])
+        self.ax.plot(xvals, self.__pdf_vals, label=self.get_plotlabel())
+        self.ax.legend()
+
+
 
 class QQPlotter(Plotter):
-    def __init__(self, x1samples, y1samples, ylabel="", plotlabel="", plottitle="", log=True, x2samples=None, ax=None):
+    def __init__(self, x1samples, y1samples, ylabel="", plotlabel="", plottitle="", log=True, x2samples=None,fig=None, ax=None):
         super().__init__(x1samples, y1samples, xlabel="Theoretical RVs", ylabel=ylabel, plotlabel=plotlabel,
-                         plottitle=plottitle, ax=ax)
+                         plottitle=plottitle, fig=fig, ax=ax)
         self.__log = log
         self.__x2 = x2samples
 
@@ -149,8 +166,8 @@ class QQPlotter(Plotter):
 
 
 class TimeSeriesPlotter(Plotter):
-    def __init__(self, time_ax, yvals, xlabel="", ylabel="", plotlabel="", plottitle="", colour="black", ax=None):
-        super().__init__(time_ax, yvals, xlabel, ylabel, plotlabel, plottitle, ax=ax)
+    def __init__(self, time_ax, yvals, xlabel="", ylabel="", plotlabel="", plottitle="", colour="black", fig=None, ax=None):
+        super().__init__(time_ax, yvals, xlabel, ylabel, plotlabel, plottitle, fig=fig, ax=ax)
         self.__colour = colour
 
     def get_colour(self):
@@ -160,6 +177,7 @@ class TimeSeriesPlotter(Plotter):
         self.__colour = new_colour
 
     def plot(self):
+        self.fig.set_size_inches(14, 9.5)
         self.ax.plot(self.get_x1(), self.get_y1(), linestyle='dashed', label=self.get_plotlabel())
         self.ax.set_xlabel(self.get_xlabel())
         self.ax.set_ylabel(self.get_ylabel())
